@@ -19,9 +19,6 @@
         <!-- /container -->
     </div>
     <!-- /BREADCRUMB -->
-    <div class="pagination justify-content-end">
-        {!! $categoriasShow->links() !!}
-    </div>
     <div class="d-table-cell align-middle">
         <div class="card">
             <div class="card-body">
@@ -29,25 +26,11 @@
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <tbody>
-                                @foreach ($categoriasShow as $categoriaShow)
-                                    <tr>
-                                        <td><b>{{ $categoriaShow->nombre }}</b></td>
-                                        <td>
-                                            <div class="btn-group" role="group" aria-label="Basic example">
-                                                <a href="{{ route('categoriaShow.show', $categoriaShow->id) }}"
-                                                    class="primary-btn order-submit">Ir <i class="fa fa-arrow-right"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="pagination justify-content-end">
-        {!! $categoriasShow->links() !!}
     </div>
 @endsection

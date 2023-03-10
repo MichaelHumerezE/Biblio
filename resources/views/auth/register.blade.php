@@ -5,12 +5,12 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">{{ __('Register') }}</div>
+                    <div class="card-header" style="color: white">{{ __('Register') }}</div>
 
                     <div class="card-body">
-                        <form method="POST" action="/registro">
+                        <form method="POST" action="/registro" enctype="multipart/form-data">
                             @csrf
-
+                            
                             <div class="row mb-3">
                                 <label for="name" class="col-md-4 col-form-label text-md-end">{{ __('Name') }}</label>
 
@@ -26,7 +26,7 @@
                                     @enderror
                                 </div>
                             </div>
-
+                            <!--
                             <div class="row mb-3">
                                 <label for="ci"
                                     class="col-md-4 col-form-label text-md-end">{{ __('CI') }}</label>
@@ -105,7 +105,7 @@
                                     @enderror
                                 </div>
                             </div>
-
+                        -->
                             <div class="row mb-3">
                                 <label for="email"
                                     class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
@@ -149,16 +149,19 @@
                                         name="password_confirmation" required autocomplete="new-password">
                                 </div>
                             </div>
+                            <!--
                             <input type="hidden" name="estadocli" class="form-control" id="estadocli"
                                 value="Activo">
                             <input type="hidden" name="tipoc" class="form-control" id="exampleInputPassword1"
                                 value="1">
                             <input type="hidden" name="tipoe" class="form-control" id="exampleInputPassword1"
                                 value="0">
-
+                            -->
+                            <input type="hidden" name="userType" class="form-control" id="exampleInputPassword1"
+                                value="Lector">
                             <div class="row mb-0">
                                 <div class="col-md-6 offset-md-4">
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="submit" class="btn btn-success">
                                         {{ __('Register') }}
                                     </button>
                                 </div>

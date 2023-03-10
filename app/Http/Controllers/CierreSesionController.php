@@ -15,29 +15,8 @@ class CierreSesionController extends Controller
 {
     public function logout()
     {
-        $request = Request::capture();
-        //Bitacora
-        $id = Auth::id();
-        $user = User::find($id);
-        $persona = Persona::where('email', $user->email)->first();
-        $tipo = "default";
-        if ($persona->tipoe == 1) {
-            $tipo = "Empleado";
-        }
-        if ($persona->tipoc == 1) {
-            $tipo = "Cliente";
-        }
-        $action = "Cerró sesion";
-        $Bitacora = Bitacora::create();
-        $Bitacora->tipou = $tipo;
-        $Bitacora->name = $persona->name;
-        $Bitacora->actividad = $action;
-        $Bitacora->fechaHora = date('Y-m-d H:i:s');
-        $Bitacora->ip = $request->ip();
-        $Bitacora->save();
-        //----------
-        Session::flush();
-        Auth::logout();
+        session()->forget('email');
+        session()->forget('tipo');
         return redirect()->to('/login');
     }
 }

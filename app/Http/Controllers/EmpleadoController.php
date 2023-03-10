@@ -2,27 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\RegisterEmpRequest;
+use App\Http\Requests\StoreEmpRequest;
 use App\Http\Requests\UpdateEmpRequest;
-use App\Models\Bitacora;
-use App\Models\User;
-use App\Models\Persona;
-use Illuminate\Http\Request;
-use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Auth;
-
-date_default_timezone_set('America/La_Paz');
+use Illuminate\Support\Facades\Http;
 
 class EmpleadoController extends Controller
 {
-    function __construct()
-    {
-        $this->middleware('can:empleado.index', ['only' => 'index']);
-        $this->middleware('can:empleado.create', ['only' => ['create', 'store']]);
-        $this->middleware('can:empleado.update', ['only' => ['edit', 'update']]);
-        $this->middleware('can:empleado.delete', ['only' => ['destroy']]);
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -30,8 +15,21 @@ class EmpleadoController extends Controller
      */
     public function index()
     {
-        $empleados = Persona::where('tipoe', 1)->paginate(10);
-        return view('administrador.gestionar_empleados.index', compact('empleados'));
+        $email = session()->get('email');
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json'
+        ])
+        ->post('https://biblioapidb.azurewebsites.net/api/User/GetUserByTipo', [
+            'userType' => 'Personal'
+        ]);
+        if ($response->successful()) {
+            // La solicitud fue exitosa, procesa la respuesta
+            $empleados = $response->json();
+            return view('administrador.gestionar_empleados.index', compact('empleados', 'email'));
+        } else {
+            // La solicitud falló, maneja el error
+            return redirect('/home')->with('danger', 'Error.');
+        }
     }
 
     /**
@@ -50,32 +48,8 @@ class EmpleadoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(RegisterEmpRequest $request)
+    public function store(StoreEmpRequest $request)
     {
-        //dd($request->all());
-        $empleado = User::create($request->validated());
-        $persona = Persona::create($request->validated());
-        $persona->iduser == $empleado->id;
-        $persona->save();
-        //Bitacora
-        $id2 = Auth::id();
-        $user = Persona::where('iduser', $id2)->first();
-        $tipo = "default";
-        if ($user->tipoe == 1) {
-            $tipo = "Empleado";
-        }
-        if ($user->tipoc == 1) {
-            $tipo = "Cliente";
-        }
-        $action = "Creó un nuevo registro de un usuario empleado";
-        $bitacora = Bitacora::create();
-        $bitacora->tipou = $tipo;
-        $bitacora->name = $user->name;
-        $bitacora->actividad = $action;
-        $bitacora->fechaHora = date('Y-m-d H:i:s');
-        $bitacora->ip = $request->ip();
-        $bitacora->save();
-        //----------
         return redirect()->route('empleados.index')->with('mensaje', 'Empleado Agregado Con Éxito');
     }
 
@@ -98,9 +72,7 @@ class EmpleadoController extends Controller
      */
     public function edit($id)
     {
-        $empleado = Persona::findOrFail($id);
-        //$persona = Persona::where('email', $empleado->email);
-        return view('administrador.gestionar_empleados.edit', compact('empleado'));
+        return view('administrador.gestionar_empleados.edit');
     }
 
     /**
@@ -112,30 +84,6 @@ class EmpleadoController extends Controller
      */
     public function update(UpdateEmpRequest $request, $id)
     {
-        $persona = Persona::find($id);
-        $persona->update($request->validated());
-        $empleado = User::where('email', $persona->email)->first();
-        $empleado->update($request->validated());
-        $empleado->save();
-        //Bitacora
-        $id2 = Auth::id();
-        $user = Persona::where('iduser', $id2)->first();
-        $tipo = "default";
-        if ($user->tipoe == 1) {
-            $tipo = "Empleado";
-        }
-        if ($user->tipoc == 1) {
-            $tipo = "Cliente";
-        }
-        $action = "Editó un registro de un usuario empleado";
-        $bitacora = Bitacora::create();
-        $bitacora->tipou = $tipo;
-        $bitacora->name = $user->name;
-        $bitacora->actividad = $action;
-        $bitacora->fechaHora = date('Y-m-d H:i:s');
-        $bitacora->ip = $request->ip();
-        $bitacora->save();
-        //----------
         return redirect()->route('empleados.index')->with('mensaje', 'Datos Actualizados');
     }
 
@@ -147,34 +95,6 @@ class EmpleadoController extends Controller
      */
     public function destroy($id)
     {
-        $request = Request::capture();
-        $persona = Persona::findOrFail($id);
-        $empleado = User::where('email', $persona->email)->first();
-        try {
-            $empleado->delete();
-            $persona->delete();
-            //Bitacora
-            $id2 = Auth::id();
-            $user = Persona::where('iduser', $id2)->first();
-            $tipo = "default";
-            if ($user->tipoe == 1) {
-                $tipo = "Empleado";
-            }
-            if ($user->tipoc == 1) {
-                $tipo = "Cliente";
-            }
-            $action = "Eliminó un registro de un usuario empleado";
-            $bitacora = Bitacora::create();
-            $bitacora->tipou = $tipo;
-            $bitacora->name = $user->name;
-            $bitacora->actividad = $action;
-            $bitacora->fechaHora = date('Y-m-d H:i:s');
-            $bitacora->ip = $request->ip();
-            $bitacora->save();
-            //----------
-            return redirect()->route('empleados.index')->with('message', 'Se han borrado los datos correctamente.');
-        } catch (QueryException $e) {
-            return redirect()->route('empleados.index')->with('danger', 'Datos relacionados con otras tablas, imposible borrar datos.');
-        }
+        return redirect()->route('empleados.index')->with('message', 'Se han borrado los datos correctamente.');
     }
 }

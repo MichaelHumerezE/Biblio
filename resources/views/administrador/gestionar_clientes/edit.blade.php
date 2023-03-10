@@ -2,7 +2,7 @@
 @section('content')
     <div class="card mt-4">
         <div class="card-header d-inline-flex">
-            <h1>Formulario - Editar Clientes</h1>
+            <h1>Formulario - Editar Lectores</h1>
         </div>
         <div class="card-header d-inline-flex">
             <a href="{{ route('clientes.index') }}" class="btn btn-primary ml-auto">
@@ -10,7 +10,7 @@
                 Volver</a>
         </div>
         <div class="card-body">
-            <form action="{{route('clientes.update', $cliente->id)}}" method="POST" enctype="multipart/form-data" id="update">
+            <form action="{{route('clientes.update', $cliente["id"])}}" method="POST" enctype="multipart/form-data" id="update">
                 @method('PUT')
                 @include('administrador.gestionar_clientes.partials.form')
             </form>

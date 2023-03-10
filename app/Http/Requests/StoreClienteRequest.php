@@ -25,16 +25,12 @@ class StoreClienteRequest extends FormRequest
     {
         return [
             'name' => ['required'],
-            'ci' => ['required', 'unique:personas,ci', 'min:7'],
-            'email' => ['required', 'unique:users,email'],
-            'sexo' => ['required'],
-            'celular' => ['required', 'unique:personas,celular'],
-            'domicilio' => ['required'],
-            'estadocli' => [''],
-            'tipoc' => ['required'],
-            'tipoe' => ['required'],
-            'iduser' => [''],
-            'password' => ['required', 'min:8'],
+            'apellido' => '',
+            'email' => ['required'],
+            'telefono' => '',
+            'direccion' => '',
+            'userType' => '',
+            'password' => ['required', 'min:6'],
             'password_confirmation' => ['required', 'same:password'],
         ];
     }

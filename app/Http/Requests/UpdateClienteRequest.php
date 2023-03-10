@@ -25,15 +25,11 @@ class UpdateClienteRequest extends FormRequest
     {
         return [
             'name' => ['required'],
-            'ci' => ['required'],
+            'apellido' => '',
             'email' => ['required'],
-            'sexo' => ['required'],
-            'celular' => ['required'],
-            'domicilio' => ['required'],
-            'estadocli' => [''],
-            'tipoc' => ['required'],
-            'tipoe' => ['required'],
-            'iduser' => [''],
+            'telefono' => '',
+            'direccion' => '',
+            'userType' => '',
         ];
     }
 }

@@ -2,13 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Carrito;
-use App\Models\categoria;
-use App\Models\DetalleCarrito;
-use App\Models\marca;
-use App\Models\Persona;
-use App\Models\producto;
-use App\Models\Promocion;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -30,32 +24,46 @@ class HomeController extends Controller
      */
     public function index()
     {
-        if (auth()->user()) {
-            $user = Persona::where('email', auth()->user()->email)->first();
-            if ($user->tipoe == 1) {
-                return view('administrador.home');
+        $email = session()->get('email');
+        $tipo = session()->get('tipo');
+        if ($tipo == 'Personal') {
+            return view('administrador.home', compact('email'));
+        }else{
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json'
+            ])
+            ->get('https://biblioapidb.azurewebsites.net/api/User/GetDatosDocs');
+            if ($response->successful()) {
+                // La solicitud fue exitosa, procesa la respuesta
+                $documentos = $response->json();
+                return view('cliente.home', compact('email', 'documentos'));
+            } else {
+                // La solicitud falló, maneja el error
+                return redirect('/home')->with('danger', 'Error.');
             }
+            return view('cliente.home', compact('email'));
         }
-        $productos = producto::get();
-        $categorias = categoria::get();
-        $marcas = marca::get();
-        $promociones = Promocion::get();
-        if (auth()->user()) {
-            $carrito = Carrito::where('idCliente', auth()->user()->id);
-            $carrito = $carrito->where('estado', 1)->first();
-            $detallesCarrito = DetalleCarrito::get();
-            return view('cliente.home', compact('productos', 'categorias', 'marcas', 'promociones', 'carrito', 'detallesCarrito'));
-        }
-        return view('cliente.home', compact('productos', 'categorias', 'marcas', 'promociones'));
-        //return view('home');
     }
 
-    public function indexA()
-    {
-        return view('administrador.home');
+    public function buscador(Request $request){
+        /*$response = Http::withHeaders([
+            'Content-Type' => 'application/json'
+        ])
+        ->post('https://biblioapidb.azurewebsites.net/api/User/Create', [
+            'Filtro' => $request->parametro,
+            'Palabra' => $request->buscador
+        ]);
+        if ($response->successful()) {
+            // La solicitud fue exitosa, procesa la respuesta
+            $documentos = $request->json();
+            return route('home.resultado', compact('documentos'));
+        } else {
+            // La solicitud falló, maneja el error
+            return redirect('/home')->with('danger', 'Error.');
+        }*/
     }
-    public function indexC()
-    {
-        return view('cliente.home');
+
+    public function resultado($documentos){
+        return view('cliente.catalogo.busqueda', compact('documentos'));
     }
 }

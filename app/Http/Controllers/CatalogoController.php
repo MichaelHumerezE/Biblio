@@ -2,14 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Carrito;
-use App\Models\categoria;
-use App\Models\DetalleCarrito;
-use App\Models\marca;
-use App\Models\producto;
-use App\Models\Promocion;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class CatalogoController extends Controller
 {
@@ -20,17 +14,20 @@ class CatalogoController extends Controller
      */
     public function index()
     {
-        $productos = producto::paginate(9);
-        $categorias = categoria::get();
-        $marcas = marca::get();
-        $promociones = Promocion::get();
-        if (auth()->user()) {
-            $carrito = Carrito::where('idCliente', auth()->user()->id);
-            $carrito = $carrito->where('estado', 1)->first();
-            $detallesCarrito = DetalleCarrito::get();
-            return view('cliente.catalogo.catalogo', compact('productos', 'categorias', 'marcas', 'promociones', 'carrito', 'detallesCarrito'));
+        $email = session()->get('email');
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json'
+        ])
+            ->get('https://biblioapidb.azurewebsites.net/api/User/GetDatosDocs');
+        if ($response->successful()) {
+            // La solicitud fue exitosa, procesa la respuesta
+            $documentos = $response->json();
+            return view('cliente.catalogo.catalogo', compact('email', 'documentos'));
+        } else {
+            // La solicitud falló, maneja el error
+            return redirect('/home')->with('danger', 'Error.');
         }
-        return view('cliente.catalogo.catalogo', compact('productos', 'categorias', 'marcas', 'promociones'));
+        return view('cliente.home', compact('email'));
     }
 
     /**
@@ -62,18 +59,21 @@ class CatalogoController extends Controller
      */
     public function show($id)
     {
-        $productos = producto::get();
-        $producto = producto::findOrFail($id);
-        $categorias = categoria::get();
-        $marcas = marca::get();
-        $promociones = Promocion::get();
-        if (auth()->user()) {
-            $carrito = Carrito::where('idCliente', auth()->user()->id);
-            $carrito = $carrito->where('estado', 1)->first();
-            $detallesCarrito = DetalleCarrito::get();
-            return view('cliente.catalogo.product', compact('productos', 'producto', 'categorias', 'marcas', 'promociones', 'carrito', 'detallesCarrito'));
+        $email = session()->get('email');
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json'
+        ])
+            ->post('https://biblioapidb.azurewebsites.net/api/User/GetDatosDocById', [
+                'IdDoc' => $id
+            ]);
+        if ($response->successful()) {
+            // La solicitud fue exitosa, procesa la respuesta
+            $documento = $response->json();
+            return view('cliente.catalogo.product', compact('email', 'documento'));
+        } else {
+            // La solicitud falló, maneja el error
+            return redirect('/home')->with('danger', 'Error.');
         }
-        return view('cliente.catalogo.product', compact('productos', 'producto', 'categorias', 'marcas', 'promociones'));
     }
 
     /**

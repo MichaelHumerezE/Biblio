@@ -5,7 +5,7 @@
          <div class="container">
              <ul class="header-links pull-right">
                  <!-- Authentication Links -->
-                 @guest
+                 @if ($email == null)
                      @if (Route::has('login'))
                          <li class="nav-item">
                              <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
@@ -20,7 +20,7 @@
                      <li class="nav-item dropdown">
                          <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                              data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                             {{ Auth::user()->email }}
+                             {{ $email }}
                          </a>
                          <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                              <a class="dropdown-item" href="/cierreSesion">
@@ -34,7 +34,7 @@
                              </a>
                          </div>
                      </li>
-                 @endguest
+                 @endif
              </ul>
          </div>
      </div>

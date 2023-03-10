@@ -12,8 +12,6 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-date_default_timezone_set('America/La_Paz');
-
 class PasswordController extends Controller
 {
     /**
@@ -23,18 +21,16 @@ class PasswordController extends Controller
      */
     public function index()
     {
-        if (auth()->user()) {
-            $user = auth()->user()->id;
-            $persona = Persona::where('iduser', $user)->first();
-            $TipoC = $persona->tipoc;
-            $TipoE = $persona->tipoe;
-            if ($TipoC == 1) {
-                return redirect('/cliente/home');
+        if (session()->get('email') <> null) {
+            if (session()->get('tipo') == "Lector") {
+                return redirect('cliente/home');
             } else {
-                if ($TipoE == 1) {
-                    return redirect('/administrador/home');
+                if (session()->get('tipo') == "Personal") {
+                    return redirect('administrador/home');
                 }
             }
+        }else{
+            return redirect('/home');
         }
     }
 
@@ -78,16 +74,10 @@ class PasswordController extends Controller
      */
     public function edit($id)
     {
-        $perfil = User::find($id);
-        $persona = Persona::find($id);
-        if ($persona->tipoc == 1) {
-            $productos = producto::get();
-            $carrito = Carrito::where('idCliente', auth()->user()->id);
-            $carrito = $carrito->where('estado', 1)->first();
-            $detallesCarrito = DetalleCarrito::get();
-            return view('perfilC.editPass', compact('perfil', 'detallesCarrito', 'carrito', 'productos'));
+        if (session()->get('tipo') == "Lector") {
+            return view('perfilC.editPass');
         } else {
-            return view('perfil.editPass', compact('perfil'));
+            return view('perfil.editPass');
         }
     }
 
@@ -100,34 +90,11 @@ class PasswordController extends Controller
      */
     public function update(UpdatePasswordRequest $request, $id)
     {
-        $perfil = User::find($id);
-        $perfil->update($request->validated());
-        //Bitacora
-        $id2 = Auth::id();
-        $user = Persona::where('iduser', $id2)->first();
-        $tipo = "default";
-        if ($user->tipoe == 1) {
-            $tipo = "Empleado";
-        }
-        if ($user->tipoc == 1) {
-            $tipo = "Cliente";
-        }
-        $action = "Cambio de contraseña de la cuenta personal";
-        $bitacora = Bitacora::create();
-        $bitacora->tipou = $tipo;
-        $bitacora->name = $user->name;
-        $bitacora->actividad = $action;
-        $bitacora->fechaHora = date('Y-m-d H:i:s');
-        $bitacora->ip = $request->ip();
-        $bitacora->save();
-        //----------
-        $TipoC = $user->tipoc;
-        $TipoE = $user->tipoe;
-        if ($TipoC == 1) {
-            return redirect('/cliente/home')->with('message', 'Se ha actualizado los datos correctamente.');
+        if (session()->get('tipo') == "Lector") {
+            return redirect('cliente/home')->with('message', 'Se ha actualizado los datos correctamente.');
         } else {
-            if ($TipoE == 1) {
-                return redirect('/administrador/home')->with('message', 'Se ha actualizado los datos correctamente.');
+            if (session()->get('tipo') == "Personal") {
+                return redirect('administrador/home')->with('message', 'Se ha actualizado los datos correctamente.');
             }
         }
     }

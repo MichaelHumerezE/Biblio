@@ -29,22 +29,4 @@ class LoginRequest extends FormRequest
             'password' => ['required'],
         ];
     }
-
-    public function getCredentials()
-    {
-        $email = $this->get('email');
-        if ($this->isEmail($email)) {
-            return [
-                'email' => $email,
-                'password' => $this->get('password')
-            ];
-        }
-        return $this->only('email', 'password');
-    }
-
-    public function isEmail($value)
-    {
-        $factory = $this->container->make(ValidationFactory::class);
-        return $factory->make(['email' => $value], ['email' => 'email'])->fails();
-    }
 }

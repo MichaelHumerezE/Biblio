@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-    <title>Electro - Ecommerce</title>
+    <title>Biblioteca</title>
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -75,7 +75,7 @@
             <div class="container">
                 <ul class="header-links pull-right">
                     <!-- Authentication Links -->
-                    @guest
+                    @if ($email == null)
                         @if (Route::has('login'))
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
@@ -89,12 +89,12 @@
                     @else
                         <li class="nav-item dropdown">
                             <a id="navbarDropdown" class="nav-link dropdown-toggle"
-                                href="{{ route('perfil.edit', auth()->user()->id) }}">
-                                {{ Auth::user()->email }} <i class="fa fa-user-o"></i>
+                                href="#">
+                                {{ $email }} <i class="fa fa-user-o"></i>
                                 <a class="dropdown-item" href="/cierreSesion">
                                     {{ __('Logout') }} <i class="fa fa-arrow-right"></i>
                         </li>
-                    @endguest
+                    @endif
                 </ul>
             </div>
         </div>
@@ -118,14 +118,17 @@
                     <!-- SEARCH BAR -->
                     <div class="col-md-6">
                         <div class="header-search">
-                            <form>
-                                <select class="input-select">
-                                    <option value="0">All Categories</option>
-                                    <option value="1">Category 01</option>
-                                    <option value="1">Category 02</option>
+                            <form action="{{route('home.buscador')}}" method="POST" id="busq">
+                                @csrf
+                                <select name="parametro" class="input-select">
+                                    <option value="All Categories">Todos los filtros</option>
+                                    <option value="Titulo">Titulo</option>
+                                    <option value="Autor">Autor</option>
+                                    <option value="Indice">Indice</option>
+                                    <option value="Editora">Editora</option>
                                 </select>
-                                <input class="input" placeholder="Search here">
-                                <button class="search-btn">Search</button>
+                                <input class="input" placeholder="Search here" name="buscador" value="">
+                                <button class="search-btn" id="busq">Search</button>
                             </form>
                         </div>
                     </div>
@@ -158,67 +161,23 @@
                                 @else
                                     <div class="cart-dropdown">
                                         <div class="cart-list">
-                                            @foreach ($detallesCarrito as $detalleCarrito)
-                                                @if ($detalleCarrito->idCarrito == $carrito->id)
-                                                    @foreach ($productos as $producto)
-                                                        @if ($detalleCarrito->idProducto == $producto->id)
-                                                            <?php
-                                                            $c = $c + 1;
-                                                            ?>
-                                                            <div class="product-widget">
-                                                                <div class="product-img">
-                                                                    <img src="{{ asset('public/img/' . $producto->imagen) }}"
-                                                                        alt="">
-                                                                </div>
-                                                                <div class="product-body">
-                                                                    <h3 class="product-name"><a href="#">
-                                                                            {{ $producto->name }}</a></h3>
-                                                                    <h4 class="product-price"><span
-                                                                            class="qty">{{ $detalleCarrito->cantidad }}x</span>Bs
-                                                                        {{ $detalleCarrito->precio }}
-                                                                    </h4>
-                                                                </div>
-                                                                <button class="delete" type="submit"
-                                                                    form="delete_{{ $detalleCarrito->id }}"
-                                                                    onclick="return confirm('¿Estás seguro de eliminar el registro?')"><i
-                                                                        class="fa fa-close"></i></button>
-                                                                <form
-                                                                    action="{{ route('detalleCarrito.destroy', $detalleCarrito->id) }}"
-                                                                    id="delete_{{ $detalleCarrito->id }}" method="POST"
-                                                                    enctype="multipart/form-data" hidden>
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                </form>
-                                                            </div>
-                                                        @endif
-                                                    @endforeach
-                                                @endif
-                                            @endforeach
-                                            @if ($c == 0)
-                                                <h4>Carrito Vacío</h4>
-                                            @endif
                                         </div>
                                         <div class="cart-summary">
-                                            <small>{{ $c }} Item(s) selected</small>
-                                            <h5>SUBTOTAL: Bs {{ $carrito->total }}</h5>
+                                            
                                         </div>
                                         <div class="cart-btns">
-                                            <a href="{{ route('detalleCarrito.index') }}">View Cart</a>
-                                            @if ($c == 0)
+                                            <a href="#">View Cart</a>
                                                 <a href="#">Sin productos <i
                                                         class="fa fa-arrow-circle-right"></i></a>
-                                            @else
-                                                <a href="{{ route('pagos.index') }}">Checkout <i
+                                                <a href="#">Checkout <i
                                                         class="fa fa-arrow-circle-right"></i></a>
-                                            @endif
-
                                         </div>
                                     </div>
                                 @endguest
                                 <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                                     <i class="fa fa-shopping-cart"></i>
                                     <span>Your Cart</span>
-                                    <div class="qty">{{ $c }}</div>
+                                    <div class="qty"></div>
                                 </a>
                             </div>
                             <!-- /Cart -->
@@ -252,22 +211,12 @@
                 <!-- NAV -->
                 <ul class="main-nav nav navbar-nav">
                     <li class="{{ 'home' == Request::is('home*') ? 'active' : '' }}"><a href="/home">Home</a></li>
-                    <li class="{{ 'cliente/catalogo' == Request::is('cliente/catalogo*') ? 'active' : '' }}"><a
-                            href="{{ route('catalogo.index') }}">Catálogo</a></li>
+                    <li class="{{ 'catalogo' == Request::is('catalogo*') ? 'active' : '' }}"><a
+                            href="{{url('/catalogo')}}">Catálogo</a></li>
                     <li
                         class="{{ 'cliente/categoriaShow' == Request::is('cliente/categoriaShow*') ? 'active' : '' }}">
-                        <a href="{{ route('categoriaShow.index') }}">Categorías</a>
+                        <a href="#">Categorías</a>
                     </li>
-                    @auth
-                        <li
-                            class="{{ 'cliente/pedidosCliente' == Request::is('cliente/pedidosCliente*') ? 'active' : '' }}">
-                            <a href="{{ route('pedidosCliente.index') }}">Pedidos</a>
-                        </li>
-                        <li
-                            class="{{ 'cliente/AddressClient' == Request::is('cliente/AddressClient*') ? 'active' : '' }}">
-                            <a href="{{ url('/cliente/AddressClient') }}">Direcciones</a>
-                        </li>
-                    @endAuth
                 </ul>
                 <!-- /NAV -->
             </div>
@@ -345,17 +294,17 @@
                         <div class="footer">
                             <h3 class="footer-title">Service</h3>
                             <ul class="footer-links">
-                                @if (auth()->user())
-                                    <li><a href="{{ route('perfil.edit', auth()->user()->id) }}">My Account</a></li>
-                                    <li><a href="{{ route('password.edit', auth()->user()->id) }}">Set Password</a>
+                                @if ($email <> null)
+                                    <li><a href="{{ route('perfil.edit', $email) }}">My Account</a></li>
+                                    <li><a href="{{ route('password.edit', $email) }}">Set Password</a>
                                     </li>
                                 @else
                                     <li><a href="{{ url('/login') }}">My Account</a></li>
                                     <li><a href="{{ url('/login') }}">Set Password</a></li>
                                 @endif
-                                <li><a href="{{ url('/cliente/AddressClient') }}">Address</a></li>
-                                <li><a href="{{ route('detalleCarrito.index') }}">View Cart</a></li>
-                                <li><a href="{{ route('pedidosCliente.index') }}">Orders</a></li>
+                                <li><a href="#">Address</a></li>
+                                <li><a href="#">View Cart</a></li>
+                                <li><a href="#">Orders</a></li>
                                 <li><a href="#">Help</a></li>
                             </ul>
                         </div>
@@ -413,8 +362,8 @@
 </body>
 <script>
     var botmanWidget = {
-        title: "Ecomerce",
-        aboutText: "Ecomerce",
+        title: "Biblioteca",
+        aboutText: "Biblioteca",
         introMessage: "Hola!",
         placeholderText: "Escribe un mensaje",
         mainColor: "#CC0000",

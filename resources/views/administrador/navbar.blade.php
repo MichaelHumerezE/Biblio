@@ -164,7 +164,7 @@
                 <!--<a class="dropdown-item" href="#">Log out</a>  -->
 
                 <!-- Authentication Links -->
-                @guest
+                @if ($email == null)
                     @if (Route::has('login'))
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
@@ -180,22 +180,22 @@
                     <li class="nav-item dropdown">
                         <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                            {{ Auth::user()->email }}
+                            {{ $email }}
                         </a>
 
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="/cierreSesion">
                                 {{ __('Logout') }}
                             </a>
-                            <a class="dropdown-item" href="{{ route('perfil.edit', auth()->user()->id) }}">
+                            <a class="dropdown-item" href="#">
                                 {{ __('Configurar Perfil') }}
                             </a>
-                            <a class="dropdown-item" href="{{ route('password.edit', auth()->user()->id) }}">
+                            <a class="dropdown-item" href="#">
                                 {{ __('Cambiar Contraseña') }}
                             </a>
                         </div>
                     </li>
-                @endguest
+                @endif
             </ul>
         </div>
     </nav>
