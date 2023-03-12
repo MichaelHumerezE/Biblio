@@ -12,6 +12,5 @@ class ProductosExport implements FromCollection
     */
     public function collection()
     {
-        return producto::all();
     }
 }

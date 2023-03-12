@@ -12,6 +12,5 @@ class ProveedoresExport implements FromCollection
      */
     public function collection()
     {
-        return Proveedor::all();
     }
 }

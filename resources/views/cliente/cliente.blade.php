@@ -121,7 +121,7 @@
                             <form action="{{route('home.buscador')}}" method="POST" id="busq">
                                 @csrf
                                 <select name="parametro" class="input-select">
-                                    <option value="All Categories">Todos los filtros</option>
+                                    <option value="Todo">Todos los filtros</option>
                                     <option value="Titulo">Titulo</option>
                                     <option value="Autor">Autor</option>
                                     <option value="Indice">Indice</option>

@@ -12,6 +12,5 @@ class LogsExport implements FromCollection
      */
     public function collection()
     {
-        return Bitacora::all();
     }
 }

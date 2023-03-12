@@ -46,21 +46,22 @@ class HomeController extends Controller
     }
 
     public function buscador(Request $request){
-        /*$response = Http::withHeaders([
+        $email = session()->get('email');
+        $response = Http::withHeaders([
             'Content-Type' => 'application/json'
         ])
-        ->post('https://biblioapidb.azurewebsites.net/api/User/Create', [
+        ->post('https://biblioapidb.azurewebsites.net/api/User/GetDocsByFiltro', [
             'Filtro' => $request->parametro,
             'Palabra' => $request->buscador
         ]);
         if ($response->successful()) {
             // La solicitud fue exitosa, procesa la respuesta
-            $documentos = $request->json();
-            return route('home.resultado', compact('documentos'));
+            $documentos = $response->json();
+            return view('cliente.catalogo.catalogo', compact('documentos', 'email'));
         } else {
             // La solicitud falló, maneja el error
             return redirect('/home')->with('danger', 'Error.');
-        }*/
+        }
     }
 
     public function resultado($documentos){
